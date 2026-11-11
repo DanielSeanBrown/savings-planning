@@ -16,11 +16,13 @@ class portfolio_simulation:
             lisa_overspill: bool = False):
         """Initialize the portfolio simulation with the given parameters."""
 
+        total_split = sum(split.values()) if split else 1
+
         self.portfolio = {
-            "LISA Cash": initial_balance * (split.get("lisa_cash", 0) if split else 0),
-            "LISA Stocks": initial_balance * (split.get("lisa_stocks", 0) if split else 0),
-            "ISA Cash": initial_balance * (split.get("isa_cash", 0) if split else 0),
-            "ISA Stocks": initial_balance * (split.get("isa_stocks", 0) if split else 0)
+            "LISA Cash": initial_balance * (split.get("lisa_cash", 0) / total_split if split else 0),
+            "LISA Stocks": initial_balance * (split.get("lisa_stocks", 0) / total_split if split else 0),
+            "ISA Cash": initial_balance * (split.get("isa_cash", 0) / total_split if split else 0),
+            "ISA Stocks": initial_balance * (split.get("isa_stocks", 0) / total_split if split else 0)
         }
 
         self.balance = initial_balance
@@ -57,9 +59,12 @@ class portfolio_simulation:
             self.portfolio["ISA Cash"] += self.yearly_contribution * self.split.get("isa_cash", 0)
             self.portfolio["ISA Stocks"] += self.yearly_contribution * self.split.get("isa_stocks", 0)
             self.portfolio["LISA Cash"] += self.yearly_contribution * self.split.get("lisa_cash", 0)
-            self.portfolio["LISA Cash"] += min(4000, self.yearly_contribution * self.split.get("lisa_cash", 0) * 0.25)
             self.portfolio["LISA Stocks"] += self.yearly_contribution * self.split.get("lisa_stocks", 0)
-            self.portfolio["LISA Stocks"] += min(4000, self.yearly_contribution * self.split.get("lisa_stocks", 0) * 0.25)
+
+            lisa_cash_ratio = self.split.get("lisa_cash", 0) / (self.split.get("lisa_cash", 0) + self.split.get("lisa_stocks", 0)) if (self.split.get("lisa_cash", 0) + self.split.get("lisa_stocks", 0)) > 0 else 0
+            
+            self.portfolio["LISA Cash"] += min(1000, self.yearly_contribution * self.split.get("lisa_cash", 0) * 0.25) * lisa_cash_ratio
+            self.portfolio["LISA Stocks"] += min(1000, self.yearly_contribution * self.split.get("lisa_stocks", 0) * 0.25) * (1 - lisa_cash_ratio)
 
         self.portfolio["ISA Cash"] *= 1 + self.cash_interest / 100
         self.portfolio["ISA Stocks"] *= 1 + self.investment_interest / 100
