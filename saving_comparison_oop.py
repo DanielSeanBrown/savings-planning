@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class portfolio_simulation:
     """Class to simulate a savings portfolio with different account types and contributions."""
     def __init__(
@@ -21,7 +24,7 @@ class portfolio_simulation:
         }
 
         self.balance = initial_balance
-        self.history = [initial_balance]
+        self.history = pd.DataFrame([self.portfolio])
         self.cash_interest = cash_interest
         self.investment_interest = investment_interest
         self.split = split if split is not None else {}
@@ -66,7 +69,7 @@ class portfolio_simulation:
         self.cash_comparison += self.yearly_contribution
 
         self.balance = sum(self.portfolio.values())
-        self.history.append(self.balance)
+        self.history = pd.concat([self.history, pd.DataFrame([self.portfolio])], ignore_index=True)
 
     def simulate(self):
         """Simulate the portfolio over the entire time horizon."""
@@ -108,6 +111,11 @@ class portfolio_simulation:
         print(f"Total balance: {self.get_balance():,.2f}")
         print(f"Cash comparison: {self.cash_comparison:,.2f}")
 
+    def display_history(self):
+        """Display the historical portfolio balances."""
+        print("Portfolio History:")
+        print(self.history)
+
 
 if __name__ == "__main__":
     portfolio = portfolio_simulation(
@@ -123,7 +131,8 @@ if __name__ == "__main__":
             "lisa_stocks": 0.2
         }
     )
-    
+
     portfolio.simulate()
     portfolio.display_portfolio()
+    portfolio.display_history()
 
