@@ -170,15 +170,15 @@ with st.sidebar:
     st.caption(f"Allocation total: {split_total}%")
     lisa_overspill = st.checkbox("Move LISA contributions above £4,000 into ISA", value=True)
 
-    if split_total != 100:
-        st.warning("The allocation percentages must total 100%. Adjust the sliders before viewing the simulation.")
+    if split_total <= 0:
+        st.warning("The allocation percentages must total more than 0%. Adjust the sliders before viewing the simulation.")
 
-if split_total == 100:
+if split_total:
     split = {
-        "LISA Cash": lisa_cash_pct / 100.0,
-        "LISA Stocks": lisa_stocks_pct / 100.0,
-        "ISA Cash": isa_cash_pct / 100.0,
-        "ISA Stocks": isa_stocks_pct / 100.0,
+        "LISA Cash": lisa_cash_pct / split_total,
+        "LISA Stocks": lisa_stocks_pct / split_total,
+        "ISA Cash": isa_cash_pct / split_total,
+        "ISA Stocks": isa_stocks_pct / split_total,
     }
 
     history = simulate_portfolio(
